@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/api-gateway/api-gateway.iml" filepath="$PROJECT_DIR$/api-gateway/api-gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/config-server/config-server.iml" filepath="$PROJECT_DIR$/config-server/config-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/course-registration-spring-cloud.iml" filepath="$PROJECT_DIR$/.idea/course-registration-spring-cloud.iml" />
+      <module fileurl="file://$PROJECT_DIR$/course-service/course-service.iml" filepath="$PROJECT_DIR$/course-service/course-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/instructor-service/instructor-service.iml" filepath="$PROJECT_DIR$/instructor-service/instructor-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/register-service/register-service.iml" filepath="$PROJECT_DIR$/register-service/register-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-registry/service-registry.iml" filepath="$PROJECT_DIR$/service-registry/service-registry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/student-service/student-service.iml" filepath="$PROJECT_DIR$/student-service/student-service.iml" />
+    </modules>
+  </component>
+</project>
