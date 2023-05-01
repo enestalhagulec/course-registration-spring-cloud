@@ -5,6 +5,7 @@ import net.etg.studentservice.dto.CourseDTO;
 import net.etg.studentservice.dto.RegistrationDTO;
 import net.etg.studentservice.dto.StudentDTO;
 import net.etg.studentservice.entity.Student;
+import net.etg.studentservice.exception.NoStudentException;
 import net.etg.studentservice.proxy.OpenFeignCourseProxy;
 import net.etg.studentservice.proxy.OpenFeignRegisterProxy;
 import net.etg.studentservice.repository.StudentRepository;
@@ -25,8 +26,6 @@ public class StudentServiceImpl implements StudentService {
     private final OpenFeignCourseProxy openFeignCourseProxy;
     private final OpenFeignRegisterProxy openFeignRegisterProxy;
 
-
-
     @Override
     public StudentDTO saveStudent(StudentDTO studentDTO){
         Student student = modelMapper.map(studentDTO,Student.class);
@@ -37,7 +36,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO getStudent(String studentId){
-        Student existingStudent = studentRepository.findById(studentId).get();
+        Student existingStudent = studentRepository.findById(studentId).orElseThrow(NoStudentException::new);
         return modelMapper.map(existingStudent,StudentDTO.class);
     }
 
@@ -45,7 +44,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDTO updateStudent(String studentId,
                                     StudentDTO studentDTO){
-        Student existingStudent = studentRepository.findById(studentId).get();
+        Student existingStudent = studentRepository.findById(studentId).orElseThrow(NoStudentException::new);
         existingStudent.setName(studentDTO.getName());
         existingStudent.setLastName(studentDTO.getLastName());
         Student updatedStudent = studentRepository.save(existingStudent);
@@ -54,8 +53,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public String deleteStudent(String studentId){
-        studentRepository.deleteById(studentId);
-        return "Student with id: " + studentId + " deleted.";
+        if(studentRepository.findById(studentId).isPresent()){
+            studentRepository.deleteById(studentId);
+            return "Student with id: " + studentId + " deleted.";
+        }
+        throw new NoStudentException();
+
     }
 
     @Override
@@ -73,24 +76,25 @@ public class StudentServiceImpl implements StudentService {
     public List<StudentDTO> getStudents(List<String> studentIds) {
 
         List<Student> students = new ArrayList<>();
-        for(int i=0; i< studentIds.size(); i++){
-            students.add(studentRepository.findById(studentIds.get(i)).get());
-        }
-        List<StudentDTO> studentDTOList = students
-                                            .stream()
-                                            .map(student -> modelMapper.map(student,StudentDTO.class))
-                                            .collect(Collectors.toList());
+        studentIds.forEach(
+                (studentId) -> {
+                    Student student = studentRepository.findById(studentId).orElseThrow(NoStudentException::new);
+                    students.add(student);
+                }
+        );
+        return students
+                .stream()
+                .map(student -> modelMapper.map(student,StudentDTO.class))
+                .collect(Collectors.toList());
 
-        return studentDTOList;
     }
 
     @Override
     public List<CourseDTO> getEnrolledCourses(String studentId) {
-        List<CourseDTO> enrolledCourseDTOList = openFeignRegisterProxy.getSpecificCourses(studentId).getBody();
-        return enrolledCourseDTOList;
+        if(studentRepository.findById(studentId).isPresent()){
+            return openFeignRegisterProxy.getSpecificCourses(studentId).getBody();
+        }
+        throw new NoStudentException();
     }
-
-
-
 
 }

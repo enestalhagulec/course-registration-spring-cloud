@@ -1,45 +1,43 @@
 package net.etg.courseservice.service.impl;
 
+import lombok.AllArgsConstructor;
 import net.etg.courseservice.dto.CourseDTO;
 import net.etg.courseservice.entity.Course;
+import net.etg.courseservice.exception.NoCourseException;
+import net.etg.courseservice.exception.NoInstructorException;
 import net.etg.courseservice.repository.CourseRepository;
 import net.etg.courseservice.service.CourseService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final ModelMapper modelMapper;
 
-    @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, ModelMapper modelMapper) {
-        this.courseRepository = courseRepository;
-        this.modelMapper = modelMapper;
-    }
-
     public CourseDTO saveCourse(CourseDTO courseDTO){
         Course course = modelMapper.map(courseDTO, Course.class);
         Course savedCourse = courseRepository.save(course);
-        CourseDTO savedCourseDTO = modelMapper.map(savedCourse, CourseDTO.class);
-        return savedCourseDTO;
+        return modelMapper.map(savedCourse, CourseDTO.class);
+
     }
 
 
     public CourseDTO getCourse(String courseCode){
-        Course existingCourse = courseRepository.findById(courseCode).get();
-        CourseDTO existingCourseDTO = modelMapper.map(existingCourse, CourseDTO.class);
-        return existingCourseDTO;
+        Course existingCourse = courseRepository.findById(courseCode).orElseThrow(NoCourseException::new);
+        return modelMapper.map(existingCourse, CourseDTO.class);
+
     }
 
     public CourseDTO updateCourse(CourseDTO courseDTO, String courseCode){
-        Course existingCourse = courseRepository.findById(courseCode).get();
+        Course existingCourse = courseRepository.findById(courseCode).orElseThrow(NoInstructorException::new);
         existingCourse.setName(courseDTO.getName());
         existingCourse.setDescription(courseDTO.getDescription());
         existingCourse.setInstructorId(courseDTO.getInstructorId());
@@ -48,8 +46,14 @@ public class CourseServiceImpl implements CourseService {
     }
 
     public String deleteCourse(String courseCode){
-        courseRepository.deleteById(courseCode);
-        return "Course with code " + courseCode + " deleted";
+        Optional<Course> optionalCourse = courseRepository.findById(courseCode);
+        if(optionalCourse.isPresent()){
+            courseRepository.deleteById(courseCode);
+            return "Course with code " + courseCode + " deleted";
+        }else{
+            throw new NoCourseException();
+        }
+
     }
 
     public List<CourseDTO> findAllCourses(){
@@ -64,31 +68,28 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDTO> getCoursesByInstructorId(String instructorId){
-        ArrayList<Course> courses = courseRepository.findCoursesByInstructorId(instructorId).get();
-        List<CourseDTO> courseDTOList = courses
-                                            .stream()
-                                            .map(course -> modelMapper.map(course,CourseDTO.class))
-                                            .collect(Collectors.toList());
-        return courseDTOList;
-
+        ArrayList<Course> courses = courseRepository.findCoursesByInstructorId(instructorId).orElseThrow(NoInstructorException::new);
+        return courses
+                .stream()
+                .map(course -> modelMapper.map(course,CourseDTO.class))
+                .collect(Collectors.toList());
     }
 
 
     @Override
     public List<CourseDTO> getCoursesByCodes(List<String> courseCodes) {
-        System.out.println(courseCodes);
         List<Course> courses = new ArrayList<>();
-        for(int i=0; i<courseCodes.size();i++){
-            Course existingCourse = courseRepository.findById(courseCodes.get(i)).get();
-            courses.add(existingCourse);
-        }
+        courseCodes.forEach(
+                courseCode -> {
+                    Course course = courseRepository.findById(courseCode).orElseThrow(NoCourseException::new);
+                    courses.add(course);
+                }
+        );
+        return courses
+                .stream()
+                .map(course -> modelMapper.map(course,CourseDTO.class))
+                .collect(Collectors.toList());
 
-        List<CourseDTO> courseDTOList = courses
-                                            .stream()
-                                            .map(course -> modelMapper.map(course,CourseDTO.class))
-                                            .collect(Collectors.toList());
-
-        return courseDTOList;
 
     }
 

@@ -36,13 +36,11 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public List<CourseDTO> getCoursesByStudentId(String studentId){
         List<Registration> registrationList = registrationRepository.getRegistrationsByStudentId(studentId).get();
-        System.out.println("\n\n\n\n\n*******\n\n" + registrationList + "\n\n\n");
         List<String> courseCodes = new ArrayList<>();
-        for(int i=0; i<registrationList.size(); i++){
-            courseCodes.addAll(registrationList.get(i).getCourseCode());
-        }
 
-        System.out.println("\n\n\n\n\n*******\n\n" + courseCodes + "\n\n\n");
+        registrationList.forEach(
+                registration -> courseCodes.addAll(registration.getCourseCode())
+        );
         List<CourseDTO> courseDTOList = openFeignCourseProxy.getCourses(courseCodes).getBody();
         return courseDTOList;
 
@@ -52,10 +50,9 @@ public class RegistrationServiceImpl implements RegistrationService {
     public List<StudentDTO> getStudentsByCourse(String courseCode) {
         List<Long> registrationNos = registrationRepository.getRegistrationNosByCourseCode(courseCode).get();
         List<String> studentIds = new ArrayList<>();
-        for(int i = 0; i<registrationNos.size(); i++){
-            Registration existingRegistration = registrationRepository.findById(registrationNos.get(i)).get();
-            studentIds.add(existingRegistration.getStudentId());
-        }
+        registrationNos.forEach(
+                i -> studentIds.add(registrationRepository.findById(i).get().getStudentId())
+        );
         return openFeignStudentProxy.getStudents(studentIds).getBody();
 
     }
