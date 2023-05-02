@@ -14,11 +14,14 @@ import java.util.List;
 public interface OpenFeignCourseProxy {
 
     @PostMapping("course/add")
-    ResponseEntity<CourseDTO> saveCourse(@RequestBody CourseDTO courseDTO);
+    ResponseEntity<CourseDTO> createCourse(@RequestBody CourseDTO courseDTO);
 
 
     @GetMapping("course/get/instructor-courses/{instructorId}")
     ResponseEntity<List<CourseDTO>> getInstructorCourses(@PathVariable String instructorId);
+
+    @GetMapping("course/get/{courseCode}")
+    ResponseEntity<CourseDTO> getCourse(@PathVariable String courseCode);
 
 
 }

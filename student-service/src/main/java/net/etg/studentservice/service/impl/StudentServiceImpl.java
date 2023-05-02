@@ -5,6 +5,8 @@ import net.etg.studentservice.dto.CourseDTO;
 import net.etg.studentservice.dto.RegistrationDTO;
 import net.etg.studentservice.dto.StudentDTO;
 import net.etg.studentservice.entity.Student;
+import net.etg.studentservice.exception.ErrorDetail;
+import net.etg.studentservice.exception.NoCourseException;
 import net.etg.studentservice.exception.NoStudentException;
 import net.etg.studentservice.proxy.OpenFeignCourseProxy;
 import net.etg.studentservice.proxy.OpenFeignRegisterProxy;
@@ -61,6 +63,7 @@ public class StudentServiceImpl implements StudentService {
 
     }
 
+
     @Override
     public RegistrationDTO registerToACourse(RegistrationDTO registrationDTO) {
         return openFeignRegisterProxy.registerToACourse(registrationDTO).getBody();
@@ -86,13 +89,16 @@ public class StudentServiceImpl implements StudentService {
                 .stream()
                 .map(student -> modelMapper.map(student,StudentDTO.class))
                 .collect(Collectors.toList());
-
     }
 
     @Override
     public List<CourseDTO> getEnrolledCourses(String studentId) {
         if(studentRepository.findById(studentId).isPresent()){
-            return openFeignRegisterProxy.getSpecificCourses(studentId).getBody();
+            Object response = openFeignRegisterProxy.getStudentCourses(studentId).getBody();
+            if(response instanceof ErrorDetail){
+                throw new NoCourseException();
+            }
+            return (List<CourseDTO>) response;
         }
         throw new NoStudentException();
     }

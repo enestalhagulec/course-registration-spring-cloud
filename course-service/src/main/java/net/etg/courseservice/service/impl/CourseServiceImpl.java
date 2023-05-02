@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import net.etg.courseservice.dto.CourseDTO;
 import net.etg.courseservice.entity.Course;
 import net.etg.courseservice.exception.NoCourseException;
-import net.etg.courseservice.exception.NoInstructorException;
 import net.etg.courseservice.repository.CourseRepository;
 import net.etg.courseservice.service.CourseService;
 import org.modelmapper.ModelMapper;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +35,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     public CourseDTO updateCourse(CourseDTO courseDTO, String courseCode){
-        Course existingCourse = courseRepository.findById(courseCode).orElseThrow(NoInstructorException::new);
+        Course existingCourse = courseRepository.findById(courseCode).orElseThrow(NoCourseException::new);
         existingCourse.setName(courseDTO.getName());
         existingCourse.setDescription(courseDTO.getDescription());
         existingCourse.setInstructorId(courseDTO.getInstructorId());
@@ -46,8 +44,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     public String deleteCourse(String courseCode){
-        Optional<Course> optionalCourse = courseRepository.findById(courseCode);
-        if(optionalCourse.isPresent()){
+        if(courseRepository.findById(courseCode).isPresent()){
             courseRepository.deleteById(courseCode);
             return "Course with code " + courseCode + " deleted";
         }else{
@@ -68,7 +65,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDTO> getCoursesByInstructorId(String instructorId){
-        ArrayList<Course> courses = courseRepository.findCoursesByInstructorId(instructorId).orElseThrow(NoInstructorException::new);
+        ArrayList<Course> courses = courseRepository.findCoursesByInstructorId(instructorId).orElseThrow(NoCourseException::new);
         return courses
                 .stream()
                 .map(course -> modelMapper.map(course,CourseDTO.class))

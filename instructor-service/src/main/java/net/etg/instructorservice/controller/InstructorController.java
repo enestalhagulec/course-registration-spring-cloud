@@ -3,7 +3,6 @@ package net.etg.instructorservice.controller;
 import net.etg.instructorservice.dto.CourseDTO;
 import net.etg.instructorservice.dto.InstructorDTO;
 import net.etg.instructorservice.dto.StudentDTO;
-import net.etg.instructorservice.entity.Instructor;
 import net.etg.instructorservice.service.InstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,7 +56,7 @@ public class InstructorController {
     public ResponseEntity<CourseDTO> createCourse(@RequestBody CourseDTO courseDTO){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(instructorService.createACourse(courseDTO));
+                .body(instructorService.createCourse(courseDTO));
     }
 
     @GetMapping("/get/courses/{instructorId}")
@@ -68,10 +67,9 @@ public class InstructorController {
                 .body(courseDTOList);
     }
 
-    @GetMapping("/get/{instructorId}/{courseCode}")
-    public ResponseEntity<List<StudentDTO>> getStudentsByCourse(@PathVariable String instructorId,
-                                                                @PathVariable String courseCode){
-        List<StudentDTO> studentDTOList = instructorService.bringEnrolledStudents(instructorId,courseCode);
+    @GetMapping("/get/students/{courseCode}")
+    public ResponseEntity<List<StudentDTO>> getStudentsByCourse(@PathVariable String courseCode){
+        List<StudentDTO> studentDTOList = instructorService.bringEnrolledStudents(courseCode);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(studentDTOList);

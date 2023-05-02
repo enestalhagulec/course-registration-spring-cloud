@@ -16,9 +16,9 @@ public interface InstructorService {
 
     String deleteInstructor(String instructorId);
 
-    CourseDTO createACourse(CourseDTO courseDTO);
+    CourseDTO createCourse(CourseDTO courseDTO);
 
     List<CourseDTO> bringInstructorCourses(String instructorId);
 
-    List<StudentDTO> bringEnrolledStudents(String instructorId, String courseCode);
+    List<StudentDTO> bringEnrolledStudents(String courseCode);
 }

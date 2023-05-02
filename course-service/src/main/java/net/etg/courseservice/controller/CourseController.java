@@ -35,7 +35,7 @@ public class CourseController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<CourseDTO> saveCourse(@RequestBody CourseDTO courseDTO){
+    public ResponseEntity<CourseDTO> createCourse(@RequestBody CourseDTO courseDTO){
         CourseDTO savedCourseDTO = courseService.saveCourse(courseDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

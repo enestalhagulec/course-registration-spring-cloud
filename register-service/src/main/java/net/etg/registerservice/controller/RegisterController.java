@@ -26,8 +26,10 @@ public class RegisterController {
                 .body(savedRegistrationDTO);
     }
 
+
+    //exception handling for studentId is done at the student service!
     @GetMapping("/get/courses/{studentId}")
-    public ResponseEntity<List<CourseDTO>> getSpecificCourses(@PathVariable String studentId){
+    public ResponseEntity<List<CourseDTO>> getStudentCourses(@PathVariable String studentId){
         List<CourseDTO> courseDTOList = registrationService.getCoursesByStudentId(studentId);
         return ResponseEntity
                 .status(HttpStatus.OK)

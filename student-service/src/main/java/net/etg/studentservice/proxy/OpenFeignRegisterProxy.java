@@ -18,7 +18,7 @@ public interface OpenFeignRegisterProxy {
     ResponseEntity<RegistrationDTO> registerToACourse(@RequestBody RegistrationDTO registrationDTO);
 
     @GetMapping("/get/courses/{studentId}")
-    ResponseEntity<List<CourseDTO>> getSpecificCourses(@PathVariable String studentId);
+    ResponseEntity<List<CourseDTO>> getStudentCourses(@PathVariable String studentId);
 
 
 }
